@@ -1,0 +1,27 @@
+{
+  "name": "mcp-servers",
+  "version": "1.0.0",
+  "description": "Various MCP (Model Context Protocol) server implementations",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start:filesystem": "node dist/servers/filesystem/index.js",
+    "start:calculator": "node dist/servers/calculator/index.js",
+    "start:weather": "node dist/servers/weather/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "assistant"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}
