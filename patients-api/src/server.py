@@ -16,6 +16,7 @@ mcp = FastMCP("patients-api")
 MAIN_API_BASE_URL = os.getenv("EYE2EYE_API_BASE_URL", "http://localhost:5005")
 APPOINTMENTS_API_BASE_URL = os.getenv("EYE2EYE_APPOINTMENTS_API_BASE_URL", "http://localhost:5006")
 API_TIMEOUT = int(os.getenv("API_TIMEOUT", "30"))
+EYE2EYE_API_KEY = os.getenv("EYE2EYE_API_KEY")
 
 
 async def make_request(url: str, method: str = "GET", params: Optional[dict] = None) -> dict:
@@ -31,8 +32,13 @@ async def make_request(url: str, method: str = "GET", params: Optional[dict] = N
         Dictionary containing the response data or error
     """
     try:
+        # Prepare headers with bearer token if available
+        headers = {}
+        if EYE2EYE_API_KEY:
+            headers["Authorization"] = f"Bearer {EYE2EYE_API_KEY}"
+
         async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
-            response = await client.request(method, url, params=params)
+            response = await client.request(method, url, params=params, headers=headers)
             response.raise_for_status()
             return response.json()
     except httpx.HTTPStatusError as e:
@@ -351,18 +357,24 @@ async def get_recent_activities(limit: int = 4) -> dict:
 
 
 @mcp.tool()
-async def get_all_activities(limit: int = 50) -> dict:
+async def get_all_activities(limit: int = 50, start_date: Optional[str] = None, end_date: Optional[str] = None) -> dict:
     """
-    Retrieve all activities with optional pagination.
+    Retrieve all activities with optional pagination and date filtering.
 
     Args:
         limit: Maximum number of activities to return (default: 50)
+        start_date: Start date in ISO 8601 format (YYYY-MM-DD) - optional
+        end_date: End date in ISO 8601 format (YYYY-MM-DD) - optional
 
     Returns:
         Dictionary containing list of activities
     """
     url = f"{MAIN_API_BASE_URL}/activities"
     params = {"limit": limit}
+    if start_date:
+        params["start_date"] = start_date
+    if end_date:
+        params["end_date"] = end_date
     return await make_request(url, params=params)
 
 
